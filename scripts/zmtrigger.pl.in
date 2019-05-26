@@ -268,7 +268,7 @@ while( 1 ) {
       foreach my $action ( @{$actions{$action_time}} ) {
         my $connection = $action->{connection};
         my $message = $action->{message};
-        Info( "Found action '$message'" );
+        Info( "Found action '$message' from '$connection->{name}' connection expiring at '$action_time'" );
         handleMessage( $connection, $message );
       }
       delete( $actions{$action_time} );
@@ -397,7 +397,7 @@ sub handleMessage {
     if ( $trigger eq 'on' ) {
       zmTriggerEventOn($monitor, $score, $cause, $text);
       zmTriggerShowtext($monitor, $showtext) if defined($showtext);
-      Info("Trigger '$trigger' '$cause'");
+      Info("Trigger monitor '$monitor->{Id}' action '$trigger' cause '$cause'");
       if ( $delay ) {
         my $action_text = $id.'|cancel';
         handleDelay($delay, $connection, $action_text);
@@ -410,7 +410,7 @@ sub handleMessage {
         my $last_event = zmGetLastEvent($monitor);
         zmTriggerEventOff($monitor);
         zmTriggerShowtext($monitor, $showtext) if defined($showtext);
-        Info("Trigger '$trigger'");
+        Info("Trigger monitor '$monitor->{Id}' action '$trigger' cause '$cause'");
 # Wait til it's finished
         while( zmInAlarm($monitor)
             && ($last_event == zmGetLastEvent($monitor))
@@ -424,10 +424,10 @@ sub handleMessage {
   } elsif( $action eq 'cancel' ) {
     zmTriggerEventCancel($monitor);
     zmTriggerShowtext($monitor, $showtext) if defined($showtext);
-    Info('Cancelled event');
+    Info("Cancelled event for monitor '$monitor->{Id}' with showtext '$showtext' caused by '$cause'");
   } elsif( $action eq 'show' ) {
     zmTriggerShowtext( $monitor, $showtext );
-    Info("Updated show text to '$showtext'");
+    Info("Updated show text to '$showtext' for monitor '$monitor->{Id}' caused by '$cause'");
   } else {
     Error("Unrecognised action '$action' in message '$message'");
   }
